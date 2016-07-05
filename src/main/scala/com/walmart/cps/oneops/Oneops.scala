@@ -10,17 +10,37 @@ import scalaj.http._
 /**
   * Created by gary on 7/4/2016.
   */
+
+
 case class Oneops(config: Config) {
+
+  def defaultHeaders: Map[String, String] = {
+    Map("Authorization" -> s"Basic ${Base64.encodeString(s"${config.credential.username}:${config.credential.password}")}",
+      "Content-Type" -> "application/json",
+      "Accept" -> "application/json")
+  }
 
   def organizations(): List[Organization] = {
     val request: HttpRequest = Http(s"${config.siteUrl}/account/organizations")
-      .header("Authorization", s"Basic ${Base64.encodeString(s"${config.credential.username}:${config.credential.password}")}")
-      .header("Content-Type", "application/json")
-      .header("Accept", "application/json")
+        .headers(defaultHeaders)
       .option(HttpOptions.allowUnsafeSSL)
     val response: String = request.asString.body
     implicit val formats = Serialization.formats(NoTypeHints) + new LocalDateTimeSerializer
-    parse(new StringInput(response)).camelizeKeys.extract[List[Organization]]
+    val orgs:List[Organization] = parse(new StringInput(response)).camelizeKeys.extract[List[Organization]]
+    orgs.foreach(x => {
+      x.headers = Some(defaultHeaders)
+      x.config = Some(config)
+    })
+    orgs
+  }
+
+  def organization(orgName: String): Option[Organization] = {
+    val organization:Option[Organization] = organizations().find(_.name == orgName)
+    organization.foreach(org => {
+      org.headers = Some(defaultHeaders)
+      org.config = Some(config)
+    })
+    organization
   }
 
 

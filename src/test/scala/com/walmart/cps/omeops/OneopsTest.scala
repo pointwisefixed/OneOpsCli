@@ -1,6 +1,6 @@
 package com.walmart.cps.omeops
 
-import com.walmart.cps.oneops.Oneops
+import com.walmart.cps.oneops.{Oneops, Organization}
 import com.walmart.cps.oneops.config.{Config, ConfigBuilder}
 import org.scalatest._
 
@@ -13,11 +13,19 @@ import org.scalatest._
 class OneopsSpec extends FlatSpec {
 
   val config: Config = new ConfigBuilder()
-    .withCredentials("", "")
+    .withCredentials("", "!")
     .withSiteUrl("").build()
 
-  "A Call To Get Organizations" should "have size greater than 0" in {
+  val organizationName:String = ""
+
+  "A Call To Get All Organizations" should "have size greater than 0" in {
     val o: Oneops = new Oneops(config)
     assert(o.organizations().nonEmpty)
   }
+
+  "A Call to Get All Assemblies in the organization" should "have a size greater than 0" in {
+    val o: Oneops = new Oneops(config)
+    assert(o.organization(organizationName).map(_.assemblyList()).nonEmpty)
+  }
+
 }
