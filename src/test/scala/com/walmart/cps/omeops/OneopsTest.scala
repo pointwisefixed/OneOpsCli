@@ -13,7 +13,7 @@ import org.scalatest._
 class OneopsSpec extends FlatSpec {
 
   val config: Config = new ConfigBuilder()
-    .withCredentials("", "!")
+    .withCredentials("", "")
     .withSiteUrl("").build()
 
   val organizationName:String = ""
